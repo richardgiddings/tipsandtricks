@@ -1,0 +1,11 @@
+{% if section_list %}
+    {% for section in section_list %}
+    <a href="{% url 'tips:section' section.id %}">   
+        <div>
+            {{ section.title }}
+        </div>
+    </a>
+    {% endfor %}
+{% else %}
+    <p>There are no sections yet.</p>
+{% endif %}
