@@ -1,0 +1,12 @@
+{% load filters %}
+
+{% if tips %}
+    {% for tip in tips %}  
+        {{ tip.title }}
+        {% for trick in tricks|for_tip:tip %}
+            {{ trick.command }}
+        {% endfor %}
+    {% endfor %}
+{% else %}
+    <p>There are no tips yet.</p>
+{% endif %}
