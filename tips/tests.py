@@ -45,26 +45,29 @@ class TipsViewTests(TestCase):
         self.assertContains(response, 'There are no tips yet.')
 
     def test_section_with_tips_and_tricks(self):
-        s4 = _create_section('Section 4')
-        s5 = _create_section('Section 5')
-        tip1 = _create_tip('Tip 1', 'Some notes', s4)
-        tricks = _create_trick('SELECT * FROM section', tip1)
-        tip2 = _create_tip('Tip 2', 'Some notes', s5)
+        sectiona = _create_section('Section 4')
+        sectionb = _create_section('Section 5')
+        tip = _create_tip('Tip 1', 'Some notes', sectiona)
+        trick = _create_trick('Trick', tip)
+        another_tip = _create_tip('Tip 2', 'Some notes', sectionb)
 
-        response = self.client.get(reverse('tips:section', args=(s4.id,)))
+        response = self.client.get(reverse('tips:section', args=(sectiona.id,)))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tips/section.html')
         self.assertQuerysetEqual(response.context['tips'], 
                                                  ['<Tip: Tip 1>'])
         self.assertQuerysetEqual(response.context['tricks'], 
-                                                 ['<Trick: SELECT * FROM section>'])
+                                                 ['<Trick: Trick>'])
 
-        response = self.client.get(reverse('tips:section', args=(s5.id,)))
+        response = self.client.get(reverse('tips:section', args=(sectionb.id,)))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tips/section.html')
         self.assertQuerysetEqual(response.context['tips'], 
                                                  ['<Tip: Tip 2>'])
-        self.assertQuerysetEqual(response.context['tricks'], [])
+        # filtering done on page so trick will still be present in response
+        self.assertQuerysetEqual(response.context['tricks'], ['<Trick: Trick>'])
+        # the Trick is filtered out
+        self.assertNotContains(response, 'Trick.')
 
 
 
