@@ -1,11 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
 {% if section_list %}
     {% for section in section_list %}
-    <a href="{% url 'tips:section' section.id %}">   
-        <div>
-            {{ section.title }}
+        <div class="col-md-4 div-padded">
+            <a class="btn btn-primary btn-lg btn-block outline" href="{% url 'tips:section' section.id %}">   
+                {{ section.title }}
+            </a>
         </div>
-    </a>
+    {% if forloop.counter|divisibleby:"3" and not forloop.last %}
+    </div><div class="row">
+    {% endif %}
     {% endfor %}
 {% else %}
-    <p>There are no sections yet.</p>
+    <div class="col-md-12 div-padded">
+        There are no sections yet.
+    </div>
 {% endif %}
+</div>
+
+{% endblock %}
