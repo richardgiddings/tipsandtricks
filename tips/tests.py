@@ -51,7 +51,8 @@ class TipsViewTests(TestCase):
         trick = _create_trick('Trick', tip)
         another_tip = _create_tip('Tip 2', 'Some notes', sectionb)
 
-        response = self.client.get(reverse('tips:section', args=(sectiona.id,)))
+        response = self.client.get(reverse('tips:section', 
+                                           args=(sectiona.id,)))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tips/section.html')
         self.assertQuerysetEqual(response.context['tips'], 
@@ -59,13 +60,15 @@ class TipsViewTests(TestCase):
         self.assertQuerysetEqual(response.context['tricks'], 
                                                  ['<Trick: Trick>'])
 
-        response = self.client.get(reverse('tips:section', args=(sectionb.id,)))
+        response = self.client.get(reverse('tips:section', 
+                                           args=(sectionb.id,)))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tips/section.html')
         self.assertQuerysetEqual(response.context['tips'], 
                                                  ['<Tip: Tip 2>'])
         # filtering done on page so trick will still be present in response
-        self.assertQuerysetEqual(response.context['tricks'], ['<Trick: Trick>'])
+        self.assertQuerysetEqual(response.context['tricks'], 
+                                                 ['<Trick: Trick>'])
         # the Trick is filtered out
         self.assertNotContains(response, 'Trick.')
 
