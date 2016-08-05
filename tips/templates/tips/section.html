@@ -1,12 +1,38 @@
+{% extends "base.html" %}
+
 {% load filters %}
 
+{% block content %}
+
 {% if tips %}
-    {% for tip in tips %}  
-        {{ tip.title }}
+    {% for tip in tips %}
+    <div class="panel panel-default">
+        <div class="panel-heading">  
+            {{ tip.title }}
+        </div>
+        <div class="panel-body lead">
+            {{ tip.notes }}
+        </div>
+        {% if tips %}
+        <ul class="list-group">
         {% for trick in tricks|for_tip:tip %}
-            {{ trick.command }}
+            <li class="list-group-item">
+                <code>{{ trick.command }}</code>
+            </li>
         {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
     {% endfor %}
 {% else %}
-    <p>There are no tips yet.</p>
+    <div class="row">
+        <div class="col-md-12 div-padded">
+            There are no tips yet.
+        </div>
+    </div>
 {% endif %}
+<a class="btn btn-default" href="{% url 'tips:index' %}">
+    Back
+</a>
+
+{% endblock %}
