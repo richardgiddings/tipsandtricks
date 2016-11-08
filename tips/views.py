@@ -1,29 +1,35 @@
-from django.shortcuts import render_to_response
 from .models import Section, Tip, Trick
 
-def index(request):
+from rest_framework import viewsets
+from .serializers import SectionSerializer, TipSerializer, TrickSerializer, TipTrickSerializer
+
+class TipTricksList(viewsets.ModelViewSet):
     """
-    All Sections
+    Get tips and tricks for display.
     """
+    serializer_class = TipTrickSerializer
 
-    section_list = Section.objects.order_by('title')
+    def get_queryset(self):
+        id = self.kwargs['section_id']
+        return Tip.objects.filter(section=id)
 
-    return render_to_response("tips/index.html", { 
-            "section_list": section_list,
-            })
-
-def section(request, section_id):
+class SectionViewSet(viewsets.ModelViewSet):
     """
-    Display the tips and tricks within a Section
+    API endpoint that allows Sections to be viewed or edited.
     """
+    queryset = Section.objects.order_by('title')
+    serializer_class = SectionSerializer
 
-    # get all tips for this section_id
-    tips = Tip.objects.filter(section=section_id).order_by('title')
-    
-    # get all tricks for each tip
-    tricks = Trick.objects.all()
+class TipViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows Tips to be viewed or edited.
+    """
+    queryset = Tip.objects.all()
+    serializer_class = TipSerializer
 
-    return render_to_response("tips/section.html", { 
-            "tips": tips,
-            "tricks": tricks,
-            })
+class TrickViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows Tricks to be viewed or edited.
+    """
+    queryset = Trick.objects.all()
+    serializer_class = TrickSerializer

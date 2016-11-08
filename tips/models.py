@@ -25,7 +25,7 @@ class Trick(models.Model):
     command = models.CharField(max_length=50,
                                help_text="Tip command")
 
-    tip = models.ForeignKey(Tip)
+    tip = models.ForeignKey(Tip, related_name='tricks')
 
     def __str__(self):
         return self.command
