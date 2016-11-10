@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
+{% load pipeline %}
+
 {% block title %}MySite{% endblock %}
 
 {% block content %}
-<div id="content">  
-</div>  
+<!-- JavaScript scripts -->
+{% javascript 'index_js' %}
 {% endblock %}
