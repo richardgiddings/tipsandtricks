@@ -1,13 +1,13 @@
-'use strict';
-
-var $ = require('jquery');  
-var React = require('react')
-var ReactDOM = require('react-dom')
+import $ from 'jquery';  
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Router, Route, Link, IndexRoute, browserHistory } from 'react-router';
+import Section from './section';
 
 var SectionList = React.createClass({
     loadSectionsFromServer: function(){
         $.ajax({
-            url: this.props.url,
+            url: '/api/sections/',
             datatype: 'json',
             cache: false,
             success: function(data) {
@@ -22,14 +22,7 @@ var SectionList = React.createClass({
 
     componentDidMount: function() {
         this.loadSectionsFromServer();
-        setInterval(this.loadSectionsFromServer, 
-                    this.props.pollInterval)
     }, 
-
-
-    handleClick: function(section_id, event) {
-        this.setState({section: section_id});
-    },
 
     render: function() {
         if (this.state.data.results) {
@@ -37,9 +30,9 @@ var SectionList = React.createClass({
                 return (
                     <div className="row" key={section.id}>
                         <div className="col-md-4 div-padded"> 
-                            <a className="btn btn-primary btn-lg btn-block outline" onClick={this.handleClick.bind(this, section.id)} href={`${section.id}/section/`}>
+                            <Link to={`/tips/section/${section.id}`} className="btn btn-primary btn-lg btn-block outline">
                                 {section.title}
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 );
@@ -47,11 +40,16 @@ var SectionList = React.createClass({
         }
         return (
             <div>
-                {sectionNodes}
+                {this.props.children ? this.props.children : sectionNodes}
             </div>
         )
     }
 })
 
-ReactDOM.render(<SectionList url='/api/sections/' pollInterval={1000} />, 
-    document.getElementById('container'))
+ReactDOM.render((
+  <Router history={browserHistory}>
+    <Route path="/tips/" component={SectionList} >
+        <Route path="section/:id" component={Section} />
+    </Route>
+  </Router>
+), document.getElementById('container'))
