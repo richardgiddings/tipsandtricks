@@ -1,6 +1,6 @@
 # README #
 
-An application originally designed to store commands useful for development against sections.
+An application designed to store commands useful for development against sections.
 
 A Section has a title.
 A Tip has a title, a place to put notes and a link to the Section it belongs to.
