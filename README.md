@@ -8,6 +8,8 @@ A Trick has a command and a link to the Tip it belongs to.
 
 **Main branch**
 
+This branch contains the 'pure' Django version of the application.
+
 Currently requires:
 
 - A (Postgres) database to store the Sections, Tips and Tricks.
@@ -15,7 +17,3 @@ Currently requires:
 The application can be seen at:
 
 http://sub4.giddingsr.webfactional.com/tips/
-
-**Develop branch**
-
-Re-implemented using React and react-router for the front-end. New Django requirements are in the requirements text file for this branch.
