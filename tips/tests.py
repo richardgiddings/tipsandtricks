@@ -1,4 +1,3 @@
-from django.core.urlresolvers import reverse
 from .models import Section, Tip, Trick
 from rest_framework import status
 from rest_framework.test import APITransactionTestCase
