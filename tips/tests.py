@@ -1,6 +1,8 @@
-from django.test import TestCase
 from django.core.urlresolvers import reverse
 from .models import Section, Tip, Trick
+from rest_framework import status
+from rest_framework.test import APITransactionTestCase
+from collections import OrderedDict
 
 def _create_section(title):
     """
@@ -20,57 +22,91 @@ def _create_trick(command, tip):
     """
     return Trick.objects.create(command=command, tip=tip)
 
-class TipsViewTests(TestCase):
+class APITests(APITransactionTestCase):
+    """
+    Test the Django Rest Framework API.
+    """
 
-    def test_index_no_sections(self):
-        response = self.client.get(reverse('tips:index'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'tips/index.html')
-        self.assertContains(response, 'There are no sections yet.')
+    reset_sequences = True
 
-    def test_index_with_sections(self):
-        _create_section('Section 1')
-        _create_section('Section 2')
-        response = self.client.get(reverse('tips:index'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'tips/index.html')
-        self.assertQuerysetEqual(response.context['section_list'], 
-            ['<Section: Section 2>', '<Section: Section 1>'])
-
-    def test_section_with_no_tips(self):
-        s = _create_section('Section 3')
-        response = self.client.get(reverse('tips:section', args=(s.id,)))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'tips/section.html')
-        self.assertContains(response, 'There are no tips yet.')
-
-    def test_section_with_tips_and_tricks(self):
-        sectiona = _create_section('Section 4')
-        sectionb = _create_section('Section 5')
-        tip = _create_tip('Tip 1', 'Some notes', sectiona)
+    def setUp(self):
+        section = _create_section('Section 1')
+        tip = _create_tip('Tip 1', 'Some notes', section)
         trick = _create_trick('Trick', tip)
-        another_tip = _create_tip('Tip 2', 'Some notes', sectionb)
 
-        response = self.client.get(reverse('tips:section', 
-                                           args=(sectiona.id,)))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'tips/section.html')
-        self.assertQuerysetEqual(response.context['tips'], 
-                                                 ['<Tip: Tip 1>'])
-        self.assertQuerysetEqual(response.context['tricks'], 
-                                                 ['<Trick: Trick>'])
+    def test_section_viewset(self):
+        """
+        Test API for Section retrieval.
+        """
+        response = self.client.get('/api/sections/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, OrderedDict([
+             ('count', 1), 
+             ('next', None), 
+             ('previous', None), 
+             ('results', [OrderedDict([
+                            ('id', 1), 
+                            ('title', 'Section 1')
+                          ])])
+        ]))
 
-        response = self.client.get(reverse('tips:section', 
-                                           args=(sectionb.id,)))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'tips/section.html')
-        self.assertQuerysetEqual(response.context['tips'], 
-                                                 ['<Tip: Tip 2>'])
-        # filtering done on page so trick will still be present in response
-        self.assertQuerysetEqual(response.context['tricks'], 
-                                                 ['<Trick: Trick>'])
-        # the Trick is filtered out
-        self.assertNotContains(response, 'Trick.')
+    def test_tip_viewset(self):
+        """
+        Test API for Tip retrieval.
+        """
+        response = self.client.get('/api/tips/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, OrderedDict([
+             ('count', 1), 
+             ('next', None), 
+             ('previous', None), 
+             ('results', [OrderedDict([
+                            ('id', 1), 
+                            ('title', 'Tip 1'),
+                            ('notes', 'Some notes'),
+                            ('section', 1)
+                          ])])
+        ]))
+
+    def test_trick_viewset(self):
+        """
+        Test API for Trick retrieval.
+        """
+        response = self.client.get('/api/tricks/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, OrderedDict([
+             ('count', 1), 
+             ('next', None), 
+             ('previous', None), 
+             ('results', [OrderedDict([
+                            ('id', 1), 
+                            ('command', 'Trick'),
+                            ('tip', 1)
+                          ])])
+        ]))
+
+    def test_tipstricks(self):
+        """
+        Test that tips and tricks are returned for a section.
+        """
+        response = self.client.get('/api/tipstricks/1/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, OrderedDict([
+             ('count', 1), 
+             ('next', None), 
+             ('previous', None), 
+             ('results', [OrderedDict([
+                            ('id', 1), 
+                            ('title', 'Tip 1'),
+                            ('notes', 'Some notes'),
+                            ('section', 1),
+                            ('tricks', [OrderedDict([
+                                            ('id', 1), 
+                                            ('command', 'Trick'),
+                                            ('tip', 1)
+                                       ])])
+                          ])])
+        ]))
 
 
 
