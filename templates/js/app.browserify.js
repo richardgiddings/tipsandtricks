@@ -1,11 +1,19 @@
 import $ from 'jquery';  
-import React from 'react';
+import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Router, Route, Link, IndexRoute, browserHistory } from 'react-router';
 import Section from './section';
 
-var SectionList = React.createClass({
-    loadSectionsFromServer: function(){
+export default class SectionList extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            data: []          
+        };
+    }
+
+    loadSectionsFromServer(){
         $.ajax({
             url: '/api/sections/',
             datatype: 'json',
@@ -14,17 +22,13 @@ var SectionList = React.createClass({
                 this.setState({data: data});
             }.bind(this)
         })
-    },
+    }
 
-    getInitialState: function() {
-        return {data: []};
-    },
-
-    componentDidMount: function() {
+    componentDidMount() {
         this.loadSectionsFromServer();
-    }, 
+    } 
 
-    render: function() {
+    render() {
         if (this.state.data.results) {
             var sectionNodes = this.state.data.results.map(function(section){
                 return (
@@ -44,7 +48,7 @@ var SectionList = React.createClass({
             </div>
         )
     }
-})
+}
 
 ReactDOM.render((
   <Router history={browserHistory}>
