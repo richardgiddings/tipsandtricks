@@ -1,0 +1,1 @@
+For static js files.
